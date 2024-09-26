@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "./order";
+
+service Order {
+    rpc CheckAndTransformData(CheckAndTransformDataRequest) returns (CheckAndTransformDataResponse){}
+}
+
+message OrderModule {
+    string id = 1;
+    string name = 2;
+    AddressModule address = 3;
+    string price = 4;
+    string currency = 5;
+}
+
+message AddressModule {
+    string city = 1;
+    string district = 2;
+    string street = 3;
+}
+
+message CheckAndTransformDataRequest {
+    OrderModule order = 1;
+}
+
+message CheckAndTransformDataResponse {
+    OrderModule order = 1;
+    string message = 2;
+    int32 statusCode = 3;
+    bool success = 4;
+}
