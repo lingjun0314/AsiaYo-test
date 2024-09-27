@@ -76,3 +76,4 @@ API 實作測驗
 使用技術：Go、Gin、go-micro、consul
 此專案已部署在 AWS EC2 實例上，供面試官參考使用，具體 api 路徑為： http://3.25.235.191/asiayo/api/orders
 根據循序圖可以發現題目要求檢查欄位與實際邏輯必須分離，因此建立了建議微服務架構，具體資料流可以參考下圖：
+![資料流](https://github.com/lingjun0314/AsiaYo-test/blob/main/images/asiayo.png)
