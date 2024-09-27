@@ -12,7 +12,7 @@ var MicroClient client.Client
 func init() {
 	//	Registry consul
 	consulReg := consul.NewRegistry(
-		registry.Addrs("localhost:8499"),
+		registry.Addrs("172.31.40.181:8500"),
 	)
 
 	//	Create service

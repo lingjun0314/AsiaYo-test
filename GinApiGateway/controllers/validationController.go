@@ -12,7 +12,7 @@ import (
 type ValidatoinController struct{}
 
 func (con *ValidatoinController) CheckDataType(ctx *gin.Context) {
-	var order models.Order
+	var order pb.OrderModule
 	//	Check data valid or not
 	if err := ctx.ShouldBindJSON(&order); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -24,17 +24,7 @@ func (con *ValidatoinController) CheckDataType(ctx *gin.Context) {
 	//	Call service
 	orderService := pb.NewOrderService("order", models.MicroClient)
 	res, _ := orderService.CheckAndTransformData(ctx, &pb.CheckAndTransformDataRequest{
-		Order: &pb.OrderModule{
-			Id:   order.Id,
-			Name: order.Name,
-			Address: &pb.AddressModule{
-				City:     order.Address.City,
-				District: order.Address.District,
-				Street:   order.Address.Street,
-			},
-			Price:    order.Price,
-			Currency: order.Currency,
-		},
+		Order: &order,
 	})
 	fmt.Println(res.Success)
 

@@ -73,7 +73,7 @@ func TestCheckAndTransformData(t *testing.T) {
 				},
 			},
 			expected: &order.CheckAndTransformDataResponse{
-				Message:    "Price not a number",
+				Message:    "Price is not a number",
 				StatusCode: 400,
 				Success:    false,
 			},
@@ -186,11 +186,16 @@ func TestCheckAndTransformData(t *testing.T) {
 		},
 	}
 
-	var testOrder *o.Order
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res := &order.CheckAndTransformDataResponse{}
-			err := testOrder.CheckAndTransformData(context.Background(), tt.req, res)
+			nameHandler := &o.NameHandler{}
+			priceHandler := &o.PriceHandler{}
+			responseHandler := &o.ResponseHandler{}
+			currencyHandler := &o.CurrencyHandler{}
+
+			order := o.NewOrder(nameHandler, priceHandler, currencyHandler, responseHandler)
+			err := order.CheckAndTransformData(context.Background(), tt.req, res)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, res)
 		})
