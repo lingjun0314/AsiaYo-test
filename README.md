@@ -84,7 +84,7 @@ API 實作測驗
 ![資料流](https://github.com/lingjun0314/AsiaYo-test/blob/main/images/asiayo.png)
 
 先使用 Nginx 反向代理到 API Gateway 伺服器處理請求，並檢查 json 輸入格式及資料是否正確，使用 ShouldBindJSON 方法來確保 json結構的正確，定義的結構由 proto 文件確定資料格式及形態：
-```protobuf=
+```protobuf =
 message OrderModule {
     string id = 1;
     string name = 2;
@@ -104,7 +104,7 @@ message AddressModule {
 微服務內部的實現為符合 SOLID 原則的設計方法，以下說明：
 
 1. 單一職責原則（SRP）：程式在做資料檢查時僅檢查單一的部分，並不處理除了該欄位以外的邏輯，共分成 name currency price response，參考 nameHandler的程式部分：
-```go=
+```go =
 func (n *NameHandler) IsEnglish(name string) bool {
 	return regexp.MustCompile(`^[a-zA-Z\s]+$`).MatchString(name)
 }
@@ -120,7 +120,7 @@ func (n *NameHandler) IsCapitalized(name string) bool {
 }
 ```
 2. 開放封閉原則（OCP）：現有函式不需修改就可以達成功能，若要擴展功能可以再新增函數，實現擴展開放，修改封閉。可以參考 name 方法的 interface：
-```go=
+```go =
 type NameLogic interface {
 	IsEnglish(string) bool
 	IsCapitalized(string) bool
@@ -128,7 +128,7 @@ type NameLogic interface {
 }
 ```
 3. 里氏替換原則（LSP）：程式中的接口實現為結構體，如上方的接口實現的結構體如下：
-```go=
+```go =
 type NameHandler struct{}
 
 func (n *NameHandler) IsEnglish(name string) bool {
@@ -146,7 +146,7 @@ func (n *NameHandler) IsCapitalized(name string) bool {
 }
 ```
 當然也可以再寫一個不一樣的結構實現 interface，這並不影響整體程式碼結構，如：
-```go=
+```go =
 type NewNameHandler struct{}
 
 func (n *NewNameHandler) IsEnglish(name string) bool {
@@ -159,7 +159,7 @@ func (n *NewNameHandler) IsCapitalized(name string) bool {
 ```
 
 4. 接口隔離原則（ISP）：這裡的實現在 API Gateway 調用服務時，不需要依賴微服務內部的接口，只需要依賴微服務提供的方法接口就可以調用函數。下面是微服務內部的接口：
-```go=
+```go =
 type NameLogic interface {
 	IsEnglish(string) bool
 	IsCapitalized(string) bool
@@ -183,13 +183,13 @@ type ResponseLogic interface {
 }
 ```
 在 API Gateway 依賴的接口是微服務提供的方法接口：
-```go=
+```go =
 type OrderService interface {
 	CheckAndTransformData(ctx context.Context, in *CheckAndTransformDataRequest, opts ...client.CallOption) (*CheckAndTransformDataResponse, error)
 }
 ```
 5. 依賴反轉原則（DIP）：高層模組並不依賴於低層模組，二者都依賴於抽象接口。此專案中高層模組為 order 模組，可以看到依賴於 interface：
-```go=
+```go =
 type Order struct {
 	name     NameLogic
 	price    PriceLogic
@@ -200,7 +200,7 @@ type Order struct {
 而所有的低層模組都是接口的實現，也並不依賴於高層模組。
 
 為了實現依賴反轉，在使用方法時必須進行依賴注入，先定義一個方法回傳包含依賴的結構體：
-```go=
+```go =
 func NewOrder(name NameLogic, price PriceLogic, currency CurrencyLogic, response ResponseLogic) *Order {
 	return &Order{
 		name:     name,
@@ -211,6 +211,6 @@ func NewOrder(name NameLogic, price PriceLogic, currency CurrencyLogic, response
 }
 ```
 當調用方法時進行依賴注入：
-```go=
+```go =
 order := NewOrder(&NameHandler{}, &PriceHandler{}, &CurrencyHandler{}, &ResponseHandler{})
 ```
